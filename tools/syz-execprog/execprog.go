@@ -35,9 +35,35 @@ var (
 	flagHints     = flag.Bool("hints", false, "do a hints-generation run")
 )
 
+//Charm start
+var charmlog_file, err11 = os.OpenFile("/sys/kernel/charmlog/charmlog", os.O_RDWR, 0755)
+
+func Logf_charm(v int, msg string, args ...interface{}) {
+	timeStr := ""
+	timeStr = time.Now().Format("2006/01/02 15:04:05 ")
+	msg2 := fmt.Sprintf(timeStr+msg+"\n", args...)
+	fmt.Fprintf(charmlog_file, msg2)
+}
+
+func Printf_charm(msg string, args ...interface{}) {
+	msg2 := fmt.Sprintf(msg, args...)
+	fmt.Fprintf(charmlog_file, msg2)
+}
+
+//Charm end
 func main() {
+	//Charm start
+	charmlog_file, err11 = os.OpenFile("/sys/kernel/charmlog/charmlog", os.O_RDWR, 0755)
+	if charmlog_file == nil {
+		log.Logf(0, "charmlog_file is nil")
+	}
+	if err11 != nil {
+		log.Logf(0, "err11 is %v", err11)
+	}
+	//Charm  end
 	flag.Parse()
 	if len(flag.Args()) == 0 {
+		Printf_charm("usage: execprog [flags] file-with-programs+\n")
 		fmt.Fprintf(os.Stderr, "usage: execprog [flags] file-with-programs+\n")
 		flag.PrintDefaults()
 		os.Exit(1)
@@ -45,6 +71,7 @@ func main() {
 
 	target, err := prog.GetTarget(*flagOS, *flagArch)
 	if err != nil {
+		Printf_charm("%v", err)
 		log.Fatalf("%v", err)
 	}
 
@@ -68,6 +95,7 @@ func main() {
 			defer wg.Done()
 			env, err := ipc.MakeEnv(config, pid)
 			if err != nil {
+				Printf_charm("failed to create ipc env: %v", err)
 				log.Fatalf("failed to create ipc env: %v", err)
 			}
 			defer env.Close()
@@ -81,7 +109,8 @@ func main() {
 					idx := pos
 					pos++
 					if idx%len(entries) == 0 && time.Since(lastPrint) > 5*time.Second {
-						log.Logf(0, "executed programs: %v", idx)
+						Logf_charm(0, "executed programs: %v", idx)
+						////log.Logf(0, "executed programs: %v", idx)
 						lastPrint = time.Now()
 					}
 					posMu.Unlock()
@@ -105,7 +134,8 @@ func main() {
 						}
 						data := entry.P.Serialize()
 						logMu.Lock()
-						log.Logf(0, "executing program %v%v:\n%s", pid, strOpts, data)
+						Logf_charm(0, "executing program %v%v:\n%s", pid, strOpts, data)
+						//log.Logf(0, "executing program %v%v:\n%s", pid, strOpts, data)
 						logMu.Unlock()
 					}
 					output, info, failed, hanged, err := env.Exec(callOpts, entry.P)
@@ -115,21 +145,26 @@ func main() {
 					default:
 					}
 					if failed {
-						log.Logf(0, "BUG: executor-detected bug:\n%s", output)
+						Logf_charm(0, "BUG: executor-detected bug:\n%s", output)
+						////log.Logf(0, "BUG: executor-detected bug:\n%s", output)
 					}
 					if config.Flags&ipc.FlagDebug != 0 || err != nil {
-						log.Logf(0, "result: failed=%v hanged=%v err=%v\n\n%s",
+						Logf_charm(0, "result: failed=%v hanged=%v err=%v\n\n%s",
+							////log.Logf(0, "result: failed=%v hanged=%v err=%v\n\n%s",
 							failed, hanged, err, output)
 					}
 					if len(info) != 0 {
-						log.Logf(1, "RESULT: signal %v, coverage %v errno %v",
+						Logf_charm(1, "RESULT: signal %v, coverage %v errno %v",
+							////log.Logf(1, "RESULT: signal %v, coverage %v errno %v",
 							len(info[0].Signal), len(info[0].Cover), info[0].Errno)
 					} else {
-						log.Logf(1, "RESULT: no calls executed")
+						Logf_charm(1, "RESULT: no calls executed")
+						////log.Logf(1, "RESULT: no calls executed")
 					}
 					if *flagCoverFile != "" {
 						for i, inf := range info {
-							log.Logf(0, "call #%v: signal %v, coverage %v",
+							Logf_charm(0, "call #%v: signal %v, coverage %v",
+								////log.Logf(0, "call #%v: signal %v, coverage %v",
 								i, len(inf.Signal), len(inf.Cover))
 							if len(inf.Cover) == 0 {
 								continue
@@ -140,6 +175,7 @@ func main() {
 							}
 							err := osutil.WriteFile(fmt.Sprintf("%v.%v", *flagCoverFile, i), buf.Bytes())
 							if err != nil {
+								Printf_charm("failed to write coverage file: %v", err)
 								log.Fatalf("failed to write coverage file: %v", err)
 							}
 						}
@@ -148,27 +184,33 @@ func main() {
 						ncomps, ncandidates := 0, 0
 						for i := range entry.P.Calls {
 							if *flagOutput == "stdout" {
+								Printf_charm("call %v:\n", i)
 								fmt.Printf("call %v:\n", i)
 							}
 							comps := info[i].Comps
 							for v, args := range comps {
 								ncomps += len(args)
 								if *flagOutput == "stdout" {
+									Printf_charm("comp 0x%x:", v)
 									fmt.Printf("comp 0x%x:", v)
 									for arg := range args {
+										Printf_charm(" 0x%x", arg)
 										fmt.Printf(" 0x%x", arg)
 									}
+									Printf_charm("\n")
 									fmt.Printf("\n")
 								}
 							}
 							entry.P.MutateWithHints(i, comps, func(p *prog.Prog) {
 								ncandidates++
 								if *flagOutput == "stdout" {
-									log.Logf(1, "PROGRAM:\n%s", p.Serialize())
+									Logf_charm(1, "PROGRAM:\n%s", p.Serialize())
+									////log.Logf(1, "PROGRAM:\n%s", p.Serialize())
 								}
 							})
 						}
-						log.Logf(0, "ncomps=%v ncandidates=%v", ncomps, ncandidates)
+						Logf_charm(0, "ncomps=%v ncandidates=%v", ncomps, ncandidates)
+						////log.Logf(0, "ncomps=%v ncandidates=%v", ncomps, ncandidates)
 					}
 					return true
 				}() {
@@ -188,10 +230,12 @@ func loadPrograms(target *prog.Target, files []string) []*prog.LogEntry {
 		data, err := ioutil.ReadFile(fn)
 		if err != nil {
 			log.Fatalf("failed to read log file: %v", err)
+			Printf_charm("failed to read log file: %v", err)
 		}
 		entries = append(entries, target.ParseLog(data)...)
 	}
-	log.Logf(0, "parsed %v programs", len(entries))
+	Logf_charm(0, "parsed %v programs", len(entries))
+	////log.Logf(0, "parsed %v programs", len(entries))
 	return entries
 }
 
@@ -199,6 +243,7 @@ func createConfig(entries []*prog.LogEntry) (*ipc.Config, *ipc.ExecOpts) {
 	config, execOpts, err := ipc.DefaultConfig()
 	if err != nil {
 		log.Fatalf("%v", err)
+		Printf_charm("%v", err)
 	}
 	if config.Flags&ipc.FlagSignal != 0 {
 		execOpts.Flags |= ipc.FlagCollectCover

@@ -124,6 +124,11 @@ func (pool *Pool) Count() int {
 	return pool.cfg.Count
 }
 
+//Charm start
+func (pool *Pool) Shutdown() {
+}
+
+//Charm end
 func (pool *Pool) Create(workdir string, index int) (vmimpl.Instance, error) {
 	name := fmt.Sprintf("%v-%v", pool.env.Name, index)
 	// Create SSH key for the instance.

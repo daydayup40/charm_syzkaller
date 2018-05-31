@@ -25,6 +25,10 @@ import (
 	_ "github.com/google/syzkaller/vm/kvm"
 	_ "github.com/google/syzkaller/vm/odroid"
 	_ "github.com/google/syzkaller/vm/qemu"
+	//Charm start
+	. "github.com/google/syzkaller/pkg/log"
+	_ "github.com/google/syzkaller/vm/adbemu"
+	//Charm end
 )
 
 type Pool struct {
@@ -43,6 +47,9 @@ type Env vmimpl.Env
 var (
 	Shutdown   = vmimpl.Shutdown
 	ErrTimeout = vmimpl.ErrTimeout
+	//Charm start
+	CharmErr = vmimpl.CharmErr
+	//Charm end
 )
 
 type BootErrorer interface {
@@ -63,6 +70,13 @@ func Create(typ string, env *Env) (*Pool, error) {
 func (pool *Pool) Count() int {
 	return pool.impl.Count()
 }
+
+//Charm start
+func (pool *Pool) Shutdown() {
+	pool.impl.Shutdown()
+}
+
+//Charm end
 
 func (pool *Pool) Create(index int) (*Instance, error) {
 	if index < 0 || index >= pool.Count() {
@@ -183,12 +197,17 @@ func MonitorExecution(outc <-chan []byte, errc <-chan error, reporter report.Rep
 				// The program has exited without errors,
 				// but wait for kernel output in case there is some delayed oops.
 				return extractError("")
+			//Charm start
+			case CharmErr:
+				Logf(0, "MonitorExecution [14.1]")
+				return extractError("Lost the Charm USB channel (most likely a phone crash)")
+			//Charm end
 			case ErrTimeout:
 				return nil
 			default:
 				// Note: connection lost can race with a kernel oops message.
 				// In such case we want to return the kernel oops.
-				return extractError("lost connection to test machine")
+				return extractError("lost connection to test machine II")
 			}
 		case out := <-outc:
 			output = append(output, out...)
@@ -215,7 +234,10 @@ func MonitorExecution(outc <-chan []byte, errc <-chan error, reporter report.Rep
 			// but fuzzer is not actually executing programs.
 			// We intentionally produce the same title as no output at all,
 			// because frequently it's the same condition.
-			if time.Since(lastExecuteTime) > 3*time.Minute {
+			//Charm start
+			////if time.Since(lastExecuteTime) > 3*time.Minute {
+			if time.Since(lastExecuteTime) > 1*time.Minute {
+				//Charm end
 				rep := &report.Report{
 					Title:  "no output from test machine",
 					Output: output,

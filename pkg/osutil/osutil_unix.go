@@ -93,7 +93,10 @@ func LongPipe() (io.ReadCloser, io.WriteCloser, error) {
 
 // CreateMemMappedFile creates a temp file with the requested size and maps it into memory.
 func CreateMemMappedFile(size int) (f *os.File, mem []byte, err error) {
-	f, err = ioutil.TempFile("./", "syzkaller-shm")
+	//Charm start
+	////	f, err = ioutil.TempFile("./", "syzkaller-shm")
+	f, err = ioutil.TempFile("/data/local/tmp/", "syzkaller-shm")
+	//Charm end
 	if err != nil {
 		err = fmt.Errorf("failed to create temp file: %v", err)
 		return

@@ -74,6 +74,11 @@ func (pool *Pool) Count() int {
 	return len(pool.cfg.Targets)
 }
 
+//Charm start
+func (pool *Pool) Shutdown() {
+}
+
+//Charm end
 func (pool *Pool) Create(workdir string, index int) (vmimpl.Instance, error) {
 	target, targetPort, _ := splitTargetPort(pool.cfg.Targets[index])
 	inst := &instance{

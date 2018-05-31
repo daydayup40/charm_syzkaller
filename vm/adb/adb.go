@@ -86,6 +86,11 @@ func (pool *Pool) Count() int {
 	return len(pool.cfg.Devices)
 }
 
+//Charm start
+func (pool *Pool) Shutdown() {
+}
+
+//Charm end
 func (pool *Pool) Create(workdir string, index int) (vmimpl.Instance, error) {
 	inst := &instance{
 		adbBin: pool.cfg.Adb,

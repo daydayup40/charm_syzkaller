@@ -87,6 +87,9 @@ type Manager struct {
 	// For checking that files that we are using are not changing under us.
 	// Maps file name to modification time.
 	usedFiles map[string]time.Time
+	//Charm start
+	inst *vm.Instance
+	//Charm end
 }
 
 const (
@@ -353,6 +356,18 @@ func RunManager(cfg *mgrconfig.Config, target *prog.Target, syscalls map[int]boo
 		<-vm.Shutdown
 		return
 	}
+	//Charm start
+	go func() {
+		c := make(chan os.Signal, 2)
+		//signal.Notify(c, syscall.SIGINT)
+		<-c
+		mgr.vmPool.Shutdown()
+		close(vm.Shutdown)
+		log.Logf(0, "shutting down...")
+		<-c
+		log.Fatalf("terminating")
+	}()
+	//Charm end
 	mgr.vmLoop()
 }
 
@@ -540,7 +555,9 @@ func (mgr *Manager) runInstance(index int) (*Crash, error) {
 		return nil, fmt.Errorf("failed to create instance: %v", err)
 	}
 	defer inst.Close()
-
+	//Charm start
+	mgr.inst = inst
+	//Charm end
 	fwdAddr, err := inst.Forward(mgr.port)
 	if err != nil {
 		return nil, fmt.Errorf("failed to setup port forwarding: %v", err)
@@ -938,20 +955,22 @@ func (mgr *Manager) Check(a *rpctype.CheckArgs, r *int) error {
 			log.Fatalf("mismatching target/executor arch: target=%v executor=%v",
 				mgr.target.Arch, a.ExecutorArch)
 		}
-		if sys.GitRevision != a.FuzzerGitRev || sys.GitRevision != a.ExecutorGitRev {
-			log.Fatalf("syz-manager, syz-fuzzer and syz-executor binaries are built"+
-				" on different git revisions\n"+
-				"manager= %v\nfuzzer=  %v\nexecutor=%v\n"+
-				"this is not supported, rebuild all binaries with make",
-				sys.GitRevision, a.FuzzerGitRev, a.ExecutorGitRev)
-		}
-		if mgr.target.Revision != a.FuzzerSyzRev || mgr.target.Revision != a.ExecutorSyzRev {
-			log.Fatalf("syz-manager, syz-fuzzer and syz-executor binaries have different"+
-				" versions of system call descriptions compiled in\n"+
-				"manager= %v\nfuzzer=  %v\nexecutor=%v\n"+
-				"this is not supported, rebuild all binaries with make",
-				mgr.target.Revision, a.FuzzerSyzRev, a.ExecutorSyzRev)
-		}
+		//Charm start
+		////		if sys.GitRevision != a.FuzzerGitRev || sys.GitRevision != a.ExecutorGitRev {
+		////			log.Fatalf("syz-manager, syz-fuzzer and syz-executor binaries are built"+
+		////				" on different git revisions\n"+
+		////				"manager= %v\nfuzzer=  %v\nexecutor=%v\n"+
+		////				"this is not supported, rebuild all binaries with make",
+		////				sys.GitRevision, a.FuzzerGitRev, a.ExecutorGitRev)
+		////		}
+		////		if mgr.target.Revision != a.FuzzerSyzRev || mgr.target.Revision != a.ExecutorSyzRev {
+		////			log.Fatalf("syz-manager, syz-fuzzer and syz-executor binaries have different"+
+		////				" versions of system call descriptions compiled in\n"+
+		////				"manager= %v\nfuzzer=  %v\nexecutor=%v\n"+
+		////				"this is not supported, rebuild all binaries with make",
+		////				mgr.target.Revision, a.FuzzerSyzRev, a.ExecutorSyzRev)
+		////		}
+		//Charm end
 	}
 	if len(mgr.cfg.EnabledSyscalls) != 0 && len(a.DisabledCalls) != 0 {
 		disabled := make(map[string]string)
@@ -966,6 +985,10 @@ func (mgr *Manager) Check(a *rpctype.CheckArgs, r *int) error {
 		}
 	}
 	if len(a.Calls) == 0 {
+		//Charm start
+		log.Logf(0, "about to terminate the emulator")
+		mgr.vmPool.Shutdown()
+		//Charm end
 		log.Fatalf("all system calls are disabled")
 	}
 	mgr.vmChecked = true

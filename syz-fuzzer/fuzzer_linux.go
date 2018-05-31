@@ -97,7 +97,8 @@ func kmemleakScan(report bool) {
 					continue
 				}
 				// BUG in output should be recognized by manager.
-				log.Logf(0, "BUG: memory leak\n%s\n", report)
+				////log.Logf(0, "BUG: memory leak\n%s\n", report)
+				Logf_charm(0, "BUG: memory leak\n%s\n", report)
 				nleaks++
 			}
 			if nleaks != 0 {
@@ -158,20 +159,23 @@ func checkCompsSupported() (kcov, comps bool) {
 	_, _, errno := syscall.Syscall(
 		syscall.SYS_IOCTL, uintptr(fd), linux.KCOV_INIT_TRACE, coverSize)
 	if errno != 0 {
-		log.Logf(1, "KCOV_CHECK: KCOV_INIT_TRACE = %v", errno)
+		////log.Logf(1, "KCOV_CHECK: KCOV_INIT_TRACE = %v", errno)
+		Logf_charm(1, "KCOV_CHECK: KCOV_INIT_TRACE = %v", errno)
 		return
 	}
 	mem, err := syscall.Mmap(fd, 0, int(coverSize*unsafe.Sizeof(uintptr(0))),
 		syscall.PROT_READ|syscall.PROT_WRITE, syscall.MAP_SHARED)
 	if err != nil {
-		log.Logf(1, "KCOV_CHECK: mmap = %v", err)
+		////log.Logf(1, "KCOV_CHECK: mmap = %v", err)
+		Logf_charm(1, "KCOV_CHECK: mmap = %v", err)
 		return
 	}
 	defer syscall.Munmap(mem)
 	_, _, errno = syscall.Syscall(syscall.SYS_IOCTL,
 		uintptr(fd), linux.KCOV_ENABLE, linux.KCOV_TRACE_CMP)
 	if errno != 0 {
-		log.Logf(1, "KCOV_CHECK: KCOV_ENABLE = %v", errno)
+		////log.Logf(1, "KCOV_CHECK: KCOV_ENABLE = %v", errno)
+		Logf_charm(1, "KCOV_CHECK: KCOV_ENABLE = %v", errno)
 		return
 	}
 	defer syscall.Syscall(syscall.SYS_IOCTL, uintptr(fd), linux.KCOV_DISABLE, 0)

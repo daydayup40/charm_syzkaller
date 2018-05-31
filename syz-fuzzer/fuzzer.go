@@ -94,7 +94,32 @@ const (
 	OutputFile
 )
 
+//Charm start
+var charmlog_file, err11 = os.OpenFile("/sys/kernel/charmlog/charmlog", os.O_RDWR, 0755)
+
+func Logf_charm(v int, msg string, args ...interface{}) {
+	timeStr := ""
+	timeStr = time.Now().Format("2006/01/02 15:04:05 ")
+	msg2 := fmt.Sprintf(timeStr+msg+"\n", args...)
+	fmt.Fprintf(charmlog_file, msg2)
+}
+
+func Printf_charm(msg string, args ...interface{}) {
+	msg2 := fmt.Sprintf(msg, args...)
+	fmt.Fprintf(charmlog_file, msg2)
+}
+
+//Charm end
 func main() {
+	//Charm start
+	charmlog_file, err11 = os.OpenFile("/sys/kernel/charmlog/charmlog", os.O_RDWR, 0755)
+	if charmlog_file == nil {
+		log.Logf(0, "charmlog_file is nil")
+	}
+	if err11 != nil {
+		log.Logf(0, "err11 is %v", err11)
+	}
+	//Charm end
 	debug.SetGCPercent(50)
 
 	var (
@@ -119,13 +144,15 @@ func main() {
 	case "file":
 		outputType = OutputFile
 	default:
+		Printf_charm("-output flag must be one of none/stdout/dmesg/file\n")
 		fmt.Fprintf(os.Stderr, "-output flag must be one of none/stdout/dmesg/file\n")
 		os.Exit(1)
 	}
-	log.Logf(0, "fuzzer started")
-
+	////log.Logf(0, "fuzzer started")
+	Logf_charm(0, "fuzzer started")
 	target, err := prog.GetTarget(runtime.GOOS, *flagArch)
 	if err != nil {
+		Printf_charm("%v", err)
 		log.Fatalf("%v", err)
 	}
 
@@ -145,7 +172,8 @@ func main() {
 	go func() {
 		// Handles graceful preemption on GCE.
 		<-shutdown
-		log.Logf(0, "SYZ-FUZZER: PREEMPTED")
+		////log.Logf(0, "SYZ-FUZZER: PREEMPTED")
+		Logf_charm(0, "SYZ-FUZZER: PREEMPTED")
 		os.Exit(1)
 	}()
 
@@ -157,13 +185,15 @@ func main() {
 	if *flagPprof != "" {
 		go func() {
 			err := http.ListenAndServe(*flagPprof, nil)
+			Printf_charm("failed to serve pprof profiles: %v", err)
 			log.Fatalf("failed to serve pprof profiles: %v", err)
 		}()
 	} else {
 		runtime.MemProfileRate = 0
 	}
 
-	log.Logf(0, "dialing manager at %v", *flagManager)
+	////log.Logf(0, "dialing manager at %v", *flagManager)
+	Logf_charm(0, "dialing manager at %v", *flagManager)
 	a := &rpctype.ConnectArgs{Name: *flagName}
 	r := &rpctype.ConnectRes{}
 	if err := rpctype.RPCCall(*flagManager, "Manager.Connect", a, r); err != nil {
@@ -193,7 +223,8 @@ func main() {
 	coverageEnabled := config.Flags&ipc.FlagSignal != 0
 
 	kcov, comparisonTracingEnabled := checkCompsSupported()
-	log.Logf(0, "kcov=%v, comps=%v", kcov, comparisonTracingEnabled)
+	Logf_charm(0, "kcov=%v, comps=%v", kcov, comparisonTracingEnabled)
+	////log.Logf(0, "kcov=%v, comps=%v", kcov, comparisonTracingEnabled)
 	if r.NeedCheck {
 		out, err := osutil.RunCmd(time.Minute, "", config.Executor, "version")
 		if err != nil {
@@ -288,6 +319,7 @@ func main() {
 	for pid := 0; pid < *flagProcs; pid++ {
 		proc, err := newProc(fuzzer, pid)
 		if err != nil {
+			Printf_charm("failed to create proc: %v", err)
 			log.Fatalf("failed to create proc: %v", err)
 		}
 		fuzzer.procs = append(fuzzer.procs, proc)
@@ -311,7 +343,8 @@ func (fuzzer *Fuzzer) pollLoop() {
 		}
 		if fuzzer.outputType != OutputStdout && time.Since(lastPrint) > 10*time.Second {
 			// Keep-alive for manager.
-			log.Logf(0, "alive, executed %v", execTotal)
+			Logf_charm(0, "alive, executed %v", execTotal)
+			////log.Logf(0, "alive, executed %v", execTotal)
 			lastPrint = time.Now()
 		}
 		if poll || time.Since(lastPoll) > 10*time.Second {
@@ -342,8 +375,10 @@ func (fuzzer *Fuzzer) pollLoop() {
 				panic(err)
 			}
 			maxSignal := r.MaxSignal.Deserialize()
-			log.Logf(1, "poll: candidates=%v inputs=%v signal=%v",
+			Logf_charm(1, "poll: candidates=%v inputs=%v signal=%v",
 				len(r.Candidates), len(r.NewInputs), maxSignal.Len())
+			////log.Logf(1, "poll: candidates=%v inputs=%v signal=%v",
+			////	len(r.Candidates), len(r.NewInputs), maxSignal.Len())
 			fuzzer.addMaxSignal(maxSignal)
 			for _, inp := range r.NewInputs {
 				fuzzer.addInputFromAnotherFuzzer(inp)
@@ -387,6 +422,7 @@ func buildCallList(target *prog.Target, enabledCalls []int, sandbox string) (
 	for _, n := range enabledCalls {
 		if n >= len(target.Syscalls) {
 			log.Fatalf("invalid enabled syscall: %v", n)
+			Printf_charm("invalid enabled syscall: %v", n)
 		}
 		calls[target.Syscalls[n]] = true
 	}
@@ -394,11 +430,13 @@ func buildCallList(target *prog.Target, enabledCalls []int, sandbox string) (
 	var disabled []rpctype.SyscallReason
 	_, unsupported, err := host.DetectSupportedSyscalls(target, sandbox)
 	if err != nil {
+		Printf_charm("failed to detect host supported syscalls: %v", err)
 		log.Fatalf("failed to detect host supported syscalls: %v", err)
 	}
 	for c := range calls {
 		if reason, ok := unsupported[c]; ok {
-			log.Logf(1, "unsupported syscall: %v: %v", c.Name, reason)
+			Logf_charm(1, "unsupported syscall: %v: %v", c.Name, reason)
+			////log.Logf(1, "unsupported syscall: %v: %v", c.Name, reason)
 			disabled = append(disabled, rpctype.SyscallReason{
 				Name:   c.Name,
 				Reason: reason,
@@ -409,7 +447,8 @@ func buildCallList(target *prog.Target, enabledCalls []int, sandbox string) (
 	_, unsupported = target.TransitivelyEnabledCalls(calls)
 	for c := range calls {
 		if reason, ok := unsupported[c]; ok {
-			log.Logf(1, "transitively unsupported: %v: %v", c.Name, reason)
+			Logf_charm(1, "transitively unsupported: %v: %v", c.Name, reason)
+			////log.Logf(1, "transitively unsupported: %v: %v", c.Name, reason)
 			disabled = append(disabled, rpctype.SyscallReason{
 				Name:   c.Name,
 				Reason: reason,

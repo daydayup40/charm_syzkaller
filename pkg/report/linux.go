@@ -793,124 +793,126 @@ var linuxOopses = []*oops{
 			compile("BUG: no syscalls can create resource"),
 		},
 	},
-	&oops{
-		[]byte("WARNING:"),
-		[]oopsFormat{
-			{
-				title: compile("WARNING: .*lib/debugobjects\\.c.* debug_print_object"),
-				fmt:   "WARNING: ODEBUG bug in %[1]v",
-				// Skip all users of ODEBUG as well.
-				stack: warningStackFmt("debug_", "rcu", "hrtimer_", "timer_",
-					"work_", "percpu_", "kmem_", "slab_", "kfree", "vunmap", "vfree"),
-			},
-			{
-				title: compile("WARNING: .*mm/usercopy\\.c.* usercopy_warn"),
-				fmt:   "WARNING: bad usercopy in %[1]v",
-				stack: warningStackFmt("usercopy", "__check"),
-			},
-			{
-				title: compile("WARNING: .*lib/kobject\\.c.* kobject_"),
-				fmt:   "WARNING: kobject bug in %[1]v",
-				stack: warningStackFmt("kobject_"),
-			},
-			{
-				title: compile("WARNING: .*fs/proc/generic\\.c.* proc_register"),
-				fmt:   "WARNING: proc registration bug in %[1]v",
-				stack: warningStackFmt("proc_"),
-			},
-			{
-				title: compile("WARNING: .*lib/refcount\\.c.* refcount_"),
-				fmt:   "WARNING: refcount bug in %[1]v",
-				stack: warningStackFmt("refcount"),
-			},
-			{
-				title: compile("WARNING: .*kernel/locking/lockdep\\.c.*lock_"),
-				fmt:   "WARNING: locking bug in %[1]v",
-				stack: warningStackFmt(),
-			},
-			{
-				title: compile("WARNING: .*mm/.*\\.c.* k?.?malloc"),
-				fmt:   "WARNING: kmalloc bug in %[1]v",
-				stack: warningStackFmt("kmalloc", "kcalloc", "kzalloc", "vmalloc",
-					"slab", "kmem"),
-			},
-			{
-				title: compile("WARNING: .* at {{SRC}} {{FUNC}}"),
-				fmt:   "WARNING in %[2]v",
-			},
-			{
-				title:  compile("WARNING: possible circular locking dependency detected"),
-				report: compile("WARNING: possible circular locking dependency detected(?:.*\\n)+?.*is trying to acquire lock(?:.*\\n)+?.*at: (?:{{PC}} +)?{{FUNC}}"),
-				fmt:    "possible deadlock in %[1]v",
-			},
-			{
-				title:  compile("WARNING: possible irq lock inversion dependency detected"),
-				report: compile("WARNING: possible irq lock inversion dependency detected(?:.*\\n)+?.*just changed the state of lock(?:.*\\n)+?.*at: (?:{{PC}} +)?{{FUNC}}"),
-				fmt:    "possible deadlock in %[1]v",
-			},
-			{
-				title:  compile("WARNING: SOFTIRQ-safe -> SOFTIRQ-unsafe lock order detecte"),
-				report: compile("WARNING: SOFTIRQ-safe -> SOFTIRQ-unsafe lock order detected(?:.*\\n)+?.*is trying to acquire(?:.*\\n)+?.*at: (?:{{PC}} +)?{{FUNC}}"),
-				fmt:    "possible deadlock in %[1]v",
-			},
-			{
-				title:  compile("WARNING: possible recursive locking detected"),
-				report: compile("WARNING: possible recursive locking detected(?:.*\\n)+?.*is trying to acquire lock(?:.*\\n)+?.*at: (?:{{PC}} +)?{{FUNC}}"),
-				fmt:    "possible deadlock in %[1]v",
-			},
-			{
-				title:  compile("WARNING: inconsistent lock state"),
-				report: compile("WARNING: inconsistent lock state(?:.*\\n)+?.*takes(?:.*\\n)+?.*at: (?:{{PC}} +)?{{FUNC}}"),
-				fmt:    "inconsistent lock state in %[1]v",
-			},
-			{
-				title:  compile("WARNING: suspicious RCU usage"),
-				report: compile("WARNING: suspicious RCU usage(?:.*\n)+?.*?{{SRC}}"),
-				fmt:    "WARNING: suspicious RCU usage in %[2]v",
-				stack: &stackFmt{
-					parts: []*regexp.Regexp{
-						compile("Call Trace:"),
-						parseStackTrace,
-					},
-					skip: []string{"rcu", "kmem", "slab", "kmalloc",
-						"vmalloc", "kcalloc", "kzalloc"},
-				},
-			},
-			{
-				title:        compile("WARNING: kernel stack regs at [0-9a-f]+ in [^ ]* has bad '([^']+)' value"),
-				fmt:          "WARNING: kernel stack regs has bad '%[1]v' value",
-				noStackTrace: true,
-			},
-			{
-				title:        compile("WARNING: kernel stack frame pointer at [0-9a-f]+ in [^ ]* has bad value"),
-				fmt:          "WARNING: kernel stack frame pointer has bad value",
-				noStackTrace: true,
-			},
-			{
-				title:  compile("WARNING: bad unlock balance detected!"),
-				report: compile("WARNING: bad unlock balance detected!(?:.*\\n){0,15}?.*is trying to release lock(?:.*\\n){0,15}?.*{{PC}} +{{FUNC}}"),
-				fmt:    "WARNING: bad unlock balance in %[1]v",
-			},
-			{
-				title:  compile("WARNING: held lock freed!"),
-				report: compile("WARNING: held lock freed!(?:.*\\n)+?.*{{PC}} +{{FUNC}}"),
-				fmt:    "WARNING: held lock freed in %[1]v",
-			},
-			{
-				title:        compile("WARNING: kernel stack regs .* has bad 'bp' value"),
-				fmt:          "WARNING: kernel stack regs has bad value",
-				noStackTrace: true,
-			},
-			{
-				title:        compile("WARNING: kernel stack frame pointer .* has bad value"),
-				fmt:          "WARNING: kernel stack regs has bad value",
-				noStackTrace: true,
-			},
-		},
-		[]*regexp.Regexp{
-			compile("WARNING: /etc/ssh/moduli does not exist, using fixed modulus"), // printed by sshd
-		},
-	},
+	//Charm start
+	////	&oops{
+	////		[]byte("WARNING:"),
+	////		[]oopsFormat{
+	////			{
+	////				title: compile("WARNING: .*lib/debugobjects\\.c.* debug_print_object"),
+	////				fmt:   "WARNING: ODEBUG bug in %[1]v",
+	////				// Skip all users of ODEBUG as well.
+	////				stack: warningStackFmt("debug_", "rcu", "hrtimer_", "timer_",
+	////					"work_", "percpu_", "kmem_", "slab_", "kfree", "vunmap", "vfree"),
+	////			},
+	////			{
+	////				title: compile("WARNING: .*mm/usercopy\\.c.* usercopy_warn"),
+	////				fmt:   "WARNING: bad usercopy in %[1]v",
+	////				stack: warningStackFmt("usercopy", "__check"),
+	////			},
+	////			{
+	////				title: compile("WARNING: .*lib/kobject\\.c.* kobject_"),
+	////				fmt:   "WARNING: kobject bug in %[1]v",
+	////				stack: warningStackFmt("kobject_"),
+	////			},
+	////			{
+	////				title: compile("WARNING: .*fs/proc/generic\\.c.* proc_register"),
+	////				fmt:   "WARNING: proc registration bug in %[1]v",
+	////				stack: warningStackFmt("proc_"),
+	////			},
+	////			{
+	////				title: compile("WARNING: .*lib/refcount\\.c.* refcount_"),
+	////				fmt:   "WARNING: refcount bug in %[1]v",
+	////				stack: warningStackFmt("refcount"),
+	////			},
+	////			{
+	////				title: compile("WARNING: .*kernel/locking/lockdep\\.c.*lock_"),
+	////				fmt:   "WARNING: locking bug in %[1]v",
+	////				stack: warningStackFmt(),
+	////			},
+	////			{
+	////				title: compile("WARNING: .*mm/.*\\.c.* k?.?malloc"),
+	////				fmt:   "WARNING: kmalloc bug in %[1]v",
+	////				stack: warningStackFmt("kmalloc", "kcalloc", "kzalloc", "vmalloc",
+	////					"slab", "kmem"),
+	////			},
+	////			{
+	////				title: compile("WARNING: .* at {{SRC}} {{FUNC}}"),
+	////				fmt:   "WARNING in %[2]v",
+	////			},
+	////			{
+	////				title:  compile("WARNING: possible circular locking dependency detected"),
+	////				report: compile("WARNING: possible circular locking dependency detected(?:.*\\n)+?.*is trying to acquire lock(?:.*\\n)+?.*at: (?:{{PC}} +)?{{FUNC}}"),
+	////				fmt:    "possible deadlock in %[1]v",
+	////			},
+	////			{
+	////				title:  compile("WARNING: possible irq lock inversion dependency detected"),
+	////				report: compile("WARNING: possible irq lock inversion dependency detected(?:.*\\n)+?.*just changed the state of lock(?:.*\\n)+?.*at: (?:{{PC}} +)?{{FUNC}}"),
+	////				fmt:    "possible deadlock in %[1]v",
+	////			},
+	////			{
+	////				title:  compile("WARNING: SOFTIRQ-safe -> SOFTIRQ-unsafe lock order detecte"),
+	////				report: compile("WARNING: SOFTIRQ-safe -> SOFTIRQ-unsafe lock order detected(?:.*\\n)+?.*is trying to acquire(?:.*\\n)+?.*at: (?:{{PC}} +)?{{FUNC}}"),
+	////				fmt:    "possible deadlock in %[1]v",
+	////			},
+	////			{
+	////				title:  compile("WARNING: possible recursive locking detected"),
+	////				report: compile("WARNING: possible recursive locking detected(?:.*\\n)+?.*is trying to acquire lock(?:.*\\n)+?.*at: (?:{{PC}} +)?{{FUNC}}"),
+	////				fmt:    "possible deadlock in %[1]v",
+	////			},
+	////			{
+	////				title:  compile("WARNING: inconsistent lock state"),
+	////				report: compile("WARNING: inconsistent lock state(?:.*\\n)+?.*takes(?:.*\\n)+?.*at: (?:{{PC}} +)?{{FUNC}}"),
+	////				fmt:    "inconsistent lock state in %[1]v",
+	////			},
+	////			{
+	////				title:  compile("WARNING: suspicious RCU usage"),
+	////				report: compile("WARNING: suspicious RCU usage(?:.*\n)+?.*?{{SRC}}"),
+	////				fmt:    "WARNING: suspicious RCU usage in %[2]v",
+	////				stack: &stackFmt{
+	////					parts: []*regexp.Regexp{
+	////						compile("Call Trace:"),
+	////						parseStackTrace,
+	////					},
+	////					skip: []string{"rcu", "kmem", "slab", "kmalloc",
+	////						"vmalloc", "kcalloc", "kzalloc"},
+	////				},
+	////			},
+	////			{
+	////				title:        compile("WARNING: kernel stack regs at [0-9a-f]+ in [^ ]* has bad '([^']+)' value"),
+	////				fmt:          "WARNING: kernel stack regs has bad '%[1]v' value",
+	////				noStackTrace: true,
+	////			},
+	////			{
+	////				title:        compile("WARNING: kernel stack frame pointer at [0-9a-f]+ in [^ ]* has bad value"),
+	////				fmt:          "WARNING: kernel stack frame pointer has bad value",
+	////				noStackTrace: true,
+	////			},
+	////			{
+	////				title:  compile("WARNING: bad unlock balance detected!"),
+	////				report: compile("WARNING: bad unlock balance detected!(?:.*\\n){0,15}?.*is trying to release lock(?:.*\\n){0,15}?.*{{PC}} +{{FUNC}}"),
+	////				fmt:    "WARNING: bad unlock balance in %[1]v",
+	////			},
+	////			{
+	////				title:  compile("WARNING: held lock freed!"),
+	////				report: compile("WARNING: held lock freed!(?:.*\\n)+?.*{{PC}} +{{FUNC}}"),
+	////				fmt:    "WARNING: held lock freed in %[1]v",
+	////			},
+	////			{
+	////				title:        compile("WARNING: kernel stack regs .* has bad 'bp' value"),
+	////				fmt:          "WARNING: kernel stack regs has bad value",
+	////				noStackTrace: true,
+	////			},
+	////			{
+	////				title:        compile("WARNING: kernel stack frame pointer .* has bad value"),
+	////				fmt:          "WARNING: kernel stack regs has bad value",
+	////				noStackTrace: true,
+	////			},
+	////		},
+	////		[]*regexp.Regexp{
+	////			compile("WARNING: /etc/ssh/moduli does not exist, using fixed modulus"), // printed by sshd
+	////		},
+	////	},
+	//Charm end
 	&oops{
 		[]byte("INFO:"),
 		[]oopsFormat{

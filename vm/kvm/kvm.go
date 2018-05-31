@@ -97,6 +97,12 @@ func (pool *Pool) Count() int {
 	return pool.cfg.Count
 }
 
+//Charm start
+func (pool *Pool) Shutdown() {
+}
+
+//Charm end
+
 func (pool *Pool) Create(workdir string, index int) (vmimpl.Instance, error) {
 	sandbox := fmt.Sprintf("syz-%v", index)
 	inst := &instance{

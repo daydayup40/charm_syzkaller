@@ -127,6 +127,9 @@ func generateCoverHTML(w io.Writer, vmlinux, arch string, cov cover.Cover) error
 			return err
 		}
 		coverage := 0
+		//Charm start
+		uncovered_blocks := 0
+		//Charm end
 		var buf bytes.Buffer
 		for i, ln := range lines {
 			if len(covered) > 0 && covered[0].line == i+1 {
@@ -139,6 +142,9 @@ func generateCoverHTML(w io.Writer, vmlinux, arch string, cov cover.Cover) error
 					buf.Write([]byte("<span id='uncovered'>"))
 					buf.Write(ln)
 					buf.Write([]byte("</span>\n"))
+					//Charm start
+					uncovered_blocks++
+					//Charm end
 				}
 				covered = covered[1:]
 			} else {
@@ -152,6 +158,9 @@ func generateCoverHTML(w io.Writer, vmlinux, arch string, cov cover.Cover) error
 			Name:     f,
 			Body:     template.HTML(buf.String()),
 			Coverage: coverage,
+			//Charm start
+			NOCoverage: uncovered_blocks,
+			//Charm end
 		})
 	}
 
@@ -419,6 +428,9 @@ type templateFile struct {
 	Name     string
 	Body     template.HTML
 	Coverage int
+	//Charm start
+	NOCoverage int
+	//Charm end
 }
 
 type templateFileArray []*templateFile
@@ -481,7 +493,7 @@ var coverTemplate = template.Must(template.New("").Parse(`
 			<div id="nav">
 				<select id="files">
 				{{range $f := .Files}}
-				<option value="{{$f.ID}}">{{$f.Name}} ({{$f.Coverage}})</option>
+				<option value="{{$f.ID}}">{{$f.Name}} ({{$f.Coverage}},{{f.NOCoverage}})</option>
 				{{end}}
 				</select>
 			</div>

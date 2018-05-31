@@ -21,6 +21,9 @@ import (
 type Pool interface {
 	// Count returns total number of VMs in the pool.
 	Count() int
+	//Charm start
+	Shutdown()
+	//Charm end
 
 	// Create creates and boots a new VM instance.
 	Create(workdir string, index int) (Instance, error)
@@ -92,7 +95,9 @@ var (
 	// Close to interrupt all pending operations in all VMs.
 	Shutdown   = make(chan struct{})
 	ErrTimeout = errors.New("timeout")
-
+	//Charm start
+	CharmErr = errors.New("Charm")
+	//Charm end
 	ctors = make(map[string]ctorFunc)
 )
 
