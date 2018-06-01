@@ -1,0 +1,30 @@
+#Hamid
+#This one is for msm_cpp that covers v4l-12
+
+include <../drivers/media/platform/msm/camera_v2/msm_sd.h>
+include <media/msmb_pproc.h>
+resource fd_v4l2_12[fd]
+
+syz_open_dev$v4l2_subdev12(dev ptr[in, string["/dev/v4l-subdev12"]], id intptr, flags flags[open_flags]) fd_v4l2_12
+
+ioctl$msm_cpp_subdev_ioctl_VIDIOC_MSM_CPP_GET_HW_INFO(fd fd_v4l2_12, cmd const[VIDIOC_MSM_CPP_GET_HW_INFO], arg ptr[inout, msm_camera_v4l2_ioctl_t])
+ioctl$msm_cpp_subdev_ioctl_VIDIOC_MSM_CPP_LOAD_FIRMWARE(fd fd_v4l2_12, cmd const[VIDIOC_MSM_CPP_LOAD_FIRMWARE], arg ptr[inout, msm_camera_v4l2_ioctl_t])
+ioctl$msm_cpp_subdev_ioctl_VIDIOC_MSM_CPP_CFG(fd fd_v4l2_12, cmd const[VIDIOC_MSM_CPP_CFG], arg ptr[inout, msm_camera_v4l2_ioctl_t])
+ioctl$msm_cpp_subdev_ioctl_VIDIOC_MSM_CPP_FLUSH_QUEUE(fd fd_v4l2_12, cmd const[VIDIOC_MSM_CPP_FLUSH_QUEUE], arg ptr[inout, msm_camera_v4l2_ioctl_t])
+ioctl$msm_cpp_subdev_ioctl_VIDIOC_MSM_CPP_ENQUEUE_STREAM_BUFF_INFO(fd fd_v4l2_12, cmd const[VIDIOC_MSM_CPP_ENQUEUE_STREAM_BUFF_INFO], arg ptr[inout, msm_camera_v4l2_ioctl_t])
+ioctl$msm_cpp_subdev_ioctl_VIDIOC_MSM_CPP_DEQUEUE_STREAM_BUFF_INFO(fd fd_v4l2_12, cmd const[VIDIOC_MSM_CPP_DEQUEUE_STREAM_BUFF_INFO], arg ptr[inout, msm_camera_v4l2_ioctl_t])
+ioctl$msm_cpp_subdev_ioctl_VIDIOC_MSM_CPP_GET_EVENTPAYLOAD(fd fd_v4l2_12, cmd const[VIDIOC_MSM_CPP_GET_EVENTPAYLOAD], arg ptr[inout, msm_camera_v4l2_ioctl_t])
+ioctl$msm_cpp_subdev_ioctl_VIDIOC_MSM_CPP_SET_CLOCK(fd fd_v4l2_12, cmd const[VIDIOC_MSM_CPP_SET_CLOCK], arg ptr[inout, msm_camera_v4l2_ioctl_t])
+ioctl$msm_cpp_subdev_ioctl_MSM_SD_SHUTDOWN(fd fd_v4l2_12, cmd const[MSM_SD_SHUTDOWN], arg ptr[inout, msm_camera_v4l2_ioctl_t])
+ioctl$msm_cpp_subdev_ioctl_VIDIOC_MSM_CPP_QUEUE_BUF(fd fd_v4l2_12, cmd const[VIDIOC_MSM_CPP_QUEUE_BUF], arg ptr[inout, msm_camera_v4l2_ioctl_t])
+ioctl$msm_cpp_subdev_ioctl_VIDIOC_MSM_CPP_POP_STREAM_BUFFER(fd fd_v4l2_12, cmd const[VIDIOC_MSM_CPP_POP_STREAM_BUFFER], arg ptr[inout, msm_camera_v4l2_ioctl_t])
+ioctl$msm_cpp_subdev_ioctl_VIDIOC_MSM_CPP_IOMMU_ATTACH(fd fd_v4l2_12, cmd const[VIDIOC_MSM_CPP_IOMMU_ATTACH], arg ptr[inout, msm_camera_v4l2_ioctl_t])
+ioctl$msm_cpp_subdev_ioctl_VIDIOC_MSM_CPP_IOMMU_DETACH(fd fd_v4l2_12, cmd const[VIDIOC_MSM_CPP_IOMMU_DETACH], arg ptr[inout, msm_camera_v4l2_ioctl_t])
+ioctl$msm_cpp_subdev_ioctl_DEFAULT(fd fd_v4l2_12, cmd int32, arg int32[0])
+
+msm_camera_v4l2_ioctl_t {
+	id		int32
+	len		int64
+	trans_code	int32
+	ioctl_ptr	ptr[inout, string]
+}

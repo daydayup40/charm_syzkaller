@@ -1,0 +1,77 @@
+#Hamid
+#This one is for msm_flash that covers v4l-10
+#/msm_flash
+
+include <media/msm_cam_sensor.h>
+include <media/v4l2-subdev.h>
+include <media/msmb_camera.h>
+include <media/msm_camsensor_sdk.h>
+include <../drivers/media/platform/msm/camera_v2/msm_sd.h>
+resource fd_v4l2_10[fd]
+
+syz_open_dev$v4l2_subdev10(dev ptr[in, string["/dev/v4l-subdev10"]], id intptr, flags flags[open_flags]) fd_v4l2_10
+
+ioctl$msm_flash_subdev_ioctl_VIDIOC_MSM_SENSOR_GET_SUBDEV_ID(fd fd_v4l2_10, cms const[VIDIOC_MSM_SENSOR_GET_SUBDEV_ID], arg ptr[inout, flash_id])
+ioctl$msm_flash_subdev_ioctl_VIDIOC_MSM_FLASH_CFG(fd fd_v4l2_10, cms const[VIDIOC_MSM_FLASH_CFG], arg ptr[inout, msm_flash_cfg_data_t])
+ioctl$msm_flash_subdev_ioctl_MSM_SD_SHUTDOWN(fd fd_v4l2_10, cms const[MSM_SD_SHUTDOWN], arg intptr)
+ioctl$msm_flash_subdev_ioctl_DEFAULT(fd fd_v4l2_10, cms int32, arg int32[0])
+
+flash_id {
+	id	int32
+}
+
+msm_flash_cfg_data_t {
+	cfg_type	flags[msm_flash_cfg_type_t, int32]
+	flash_current	array[int32, 3]
+	flash_duration	array[int32, 3]
+	cfg		flash_cfg_union
+}
+
+flash_cfg_union [
+	flash_init_info	ptr[inout, msm_flash_init_info_t]
+	settings	ptr[inout, msm_camera_i2c_reg_setting_array]
+]
+
+msm_flash_init_info_t {
+	flash_driver_type	flags[msm_flash_driver_type, int32]
+	slave_addr		int32
+	power_setting_array	ptr[inout, msm_sensor_power_setting_array]
+	settings		ptr[inout, msm_camera_i2c_reg_setting_array]
+}
+
+msm_sensor_power_setting_array {
+	power_setting_a		array[msm_sensor_power_setting, 12]
+	power_setting		ptr[inout, msm_sensor_power_setting]
+	size			int8
+	power_down_setting_a	array[msm_sensor_power_setting, 12]
+	power_down_setting	ptr[inout, msm_sensor_power_setting]
+	size_down		int8
+}
+
+msm_sensor_power_setting {
+	seq_type	flags[msm_sensor_power_seq_type_t, int32]
+	seq_val		int8
+	config_val	int64
+	delay		int8
+	data		ptr[inout, array[vma, 10]]
+}
+
+msm_camera_i2c_reg_setting_array {
+	reg_setting_a	array[msm_camera_i2c_reg_array, 12]
+	size		int8
+	addr_type	flags[msm_camera_i2c_data_type, int32]
+	data_type	flags[msm_camera_i2c_data_type, int32]
+	delay		int8
+}
+
+msm_camera_i2c_reg_array {
+	reg_addr	int8
+	reg_data	int8
+	delay		int32
+}
+
+msm_flash_cfg_type_t = CFG_FLASH_INIT, CFG_FLASH_RELEASE, CFG_FLASH_OFF, CFG_FLASH_LOW, CFG_FLASH_HIGH
+msm_flash_driver_type = FLASH_DRIVER_PMIC, FLASH_DRIVER_I2C, FLASH_DRIVER_GPIO, FLASH_DRIVER_DEFAULT
+msm_camera_i2c_reg_addr_type = MSM_CAMERA_I2C_BYTE_ADDR, MSM_CAMERA_I2C_WORD_ADDR, MSM_CAMERA_I2C_3B_ADDR, MSM_CAMERA_I2C_ADDR_TYPE_MAX
+msm_camera_i2c_data_type = MSM_CAMERA_I2C_BYTE_DATA, MSM_CAMERA_I2C_WORD_DATA, MSM_CAMERA_I2C_SET_BYTE_MASK, MSM_CAMERA_I2C_UNSET_BYTE_MASK, MSM_CAMERA_I2C_SET_WORD_MASK, MSM_CAMERA_I2C_UNSET_WORD_MASK, MSM_CAMERA_I2C_SET_BYTE_WRITE_MASK_DATA
+msm_sensor_power_seq_type_t = SENSOR_CLK, SENSOR_GPIO, SENSOR_VREG, SENSOR_I2C_MUX, SENSOR_I2C

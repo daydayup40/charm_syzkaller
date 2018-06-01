@@ -1,0 +1,42 @@
+#Hamid
+#This one is for msm_csiphy that covers v4l-0,v4l-1,v4l2
+#csiphy/msm_csiphy.c
+include <media/msm_cam_sensor.h>
+include <../drivers/media/platform/msm/camera_v2/msm_sd.h>
+resource fd_v4l2_csiphy[fd]
+
+syz_open_dev$v4l2_subdev0(dev ptr[in, string["/dev/v4l-subdev0"]], id intptr, flags flags[open_flags]) fd_v4l2_csiphy
+syz_open_dev$v4l2_subdev1(dev ptr[in, string["/dev/v4l-subdev1"]], id intptr, flags flags[open_flags]) fd_v4l2_csiphy
+syz_open_dev$v4l2_subdev2(dev ptr[in, string["/dev/v4l-subdev2"]], id intptr, flags flags[open_flags]) fd_v4l2_csiphy
+
+#v4l-0,1,2
+ioctl$msm_csiphy_subdev_ioctl_VIDIOC_MSM_SENSOR_GET_SUBDEV_ID(fd fd_v4l2_csiphy, cmd const[VIDIOC_MSM_SENSOR_GET_SUBDEV_ID], arg ptr[inout, data_VIDIOC_MSM_SENSOR_GET_SUBDEV_ID])
+ioctl$msm_csiphy_subdev_ioctl_VIDIOC_MSM_CSIPHY_IO_CFG(fd fd_v4l2_csiphy, cmd const[VIDIOC_MSM_CSIPHY_IO_CFG], arg ptr[inout, data_VIDIOC_MSM_CSIPHY_IO_CFG])
+ioctl$msm_csiphy_subdev_ioctl_MSM_SD_SHUTDOWN(fd fd_v4l2_csiphy, cmd const[MSM_SD_SHUTDOWN], arg ptr[inout, data_MSM_SD_SHUTDOWN])
+ioctl$msm_csiphy_subdev_ioctl_DEFAULT(fd fd_v4l2_csiphy, cmd int32, arg int32[0])
+##End v4l0,1,2
+
+data_VIDIOC_MSM_SENSOR_GET_SUBDEV_ID {
+
+	arg_int	int32
+}
+
+data_VIDIOC_MSM_CSIPHY_IO_CFG {
+	syz		flags[cfgtype_CSIPHY, int32]
+	csiphy_prm	ptr[inout, data_csiphy_params]
+}
+
+data_csiphy_params {
+	lane_cnt	int8
+	settle_cnt	int8
+	lane_mask	int16
+	combo_mode	int8
+	csid_core	int8
+}
+
+data_MSM_SD_SHUTDOWN {
+	csi_lane_assign	int16
+	csi_lane_mask	int16
+}
+
+cfgtype_CSIPHY = CSIPHY_INIT, CSIPHY_CFG, CSIPHY_RELEASE, 10000

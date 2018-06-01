@@ -1,0 +1,189 @@
+#Hamid
+#This one is for msm_actuator that covers v4l-9
+#/sensor/actuator/msm_actuator
+
+include <media/msm_cam_sensor.h>
+include <media/v4l2-subdev.h>
+include <media/msmb_camera.h>
+include <media/msm_camsensor_sdk.h>
+include <../drivers/media/platform/msm/camera_v2/msm_sd.h>
+resource fd_v4l2_9[fd]
+
+syz_open_dev$v4l2_subdev9(dev ptr[in, string["/dev/v4l-subdev9"]], id intptr, flags flags[open_flags]) fd_v4l2_9
+
+##v4l-9
+ioctl$msm_actuator_subdev_ioctl_VIDIOC_MSM_SENSOR_GET_SUBDEV_ID(fd fd_v4l2_9, cmd const[VIDIOC_MSM_SENSOR_GET_SUBDEV_ID], arg ptr[inout, GET_SUBDEV_ID_ACTUATOR])
+ioctl$msm_actuator_subdev_ioctl_VIDIOC_MSM_ACTUATOR_CFG(fd fd_v4l2_9, cmd const[VIDIOC_MSM_ACTUATOR_CFG], arg ptr[inout, msm_actuator_cfg_data])
+ioctl$msm_actuator_subdev_ioctl_MSM_SD_SHUTDOWN(fd fd_v4l2_9, cmd const[MSM_SD_SHUTDOWN], arg intptr)
+ioctl$msm_actuator_subdev_ioctl_DEFAULT(fd fd_v4l2_9, cmd int32, arg int32[0])
+
+#javad
+
+ioctl$msm_actuator_subdev_ioctl_VIDIOC_MSM_ACTUATOR_CFG_INIT(fd fd_v4l2_9, cmd const[VIDIOC_MSM_ACTUATOR_CFG], arg ptr[inout, msm_actuator_cfg_data_init])
+
+ioctl$msm_actuator_subdev_ioctl_VIDIOC_MSM_ACTUATOR_CFG_SET_INFO(fd fd_v4l2_9, cmd const[VIDIOC_MSM_ACTUATOR_CFG], arg ptr[inout, msm_actuator_cfg_data_set_info])
+
+ioctl$msm_actuator_subdev_ioctl_VIDIOC_MSM_ACTUATOR_CFG_SET_POS(fd fd_v4l2_9, cmd const[VIDIOC_MSM_ACTUATOR_CFG], arg ptr[inout, msm_actuator_cfg_data_set_pos])
+
+#javad end
+##v4l-9
+
+GET_SUBDEV_ID_ACTUATOR {
+	arg_int	int32
+}
+
+#javad
+msm_actuator_cfg_data_init {
+	cfgtype		int32[7]
+	is_af_supported	int8
+	cfg		cfg_union
+}
+
+msm_actuator_cfg_data_set_info {
+	cfgtype		int32[1]
+	is_af_supported	int8
+	cfg		cfg_union
+}
+
+msm_actuator_cfg_data_set_pos {
+	cfgtype		int32[4]
+	is_af_supported	int8
+	cfg		cfg_union
+}
+
+#javad end
+
+msm_actuator_cfg_data {
+	cfgtype		flags[msm_actuator_cfg_type_t, int32]
+	is_af_supported	int8
+	cfg		cfg_union
+}
+
+cfg_union [
+	move		msm_actuator_move_params_t
+	set_info	msm_actuator_set_info_t
+	get_info	msm_actuator_get_info_t
+	setpos		msm_actuator_set_position_t
+	cam_name	flags[af_camera_name, int32]
+]
+
+msm_actuator_move_params_t {
+	dir		int8
+	sign_dir	int8
+	dest_step_pos	int16
+	num_steps	int32
+	curr_lens_pos	int16
+	ringing_params	ptr[inout, damping_params_t]
+}
+
+damping_params_t {
+	damping_step	int32
+	damping_delay	int32
+	hw_params	int32
+}
+
+msm_actuator_set_info_t {
+	actuator_params		msm_actuator_params_t
+	af_tuning_params	msm_actuator_tuning_params_t
+}
+
+msm_actuator_params_t {
+	act_type		flags[actuator_type, int32]
+	reg_tbl_size		int8
+	data_size		int16
+	init_setting_size	int16
+	i2c_addr		int32
+	i2c_addr_type		flags[msm_actuator_addr_type, int32]
+	i2c_data_type		flags[msm_actuator_data_type, int32]
+	reg_tbl_params		ptr[inout, msm_actuator_reg_params_t]
+	init_settings		ptr[inout, reg_settings_t]
+	park_lens		park_lens_data_t
+}
+
+reg_settings_t {
+#javad
+#reg_addr	int8
+#unsigned short is 2 bytes
+#javad end
+	reg_addr	int16
+	addr_type	flags[msm_actuator_addr_type, int32]
+#javad
+#reg_data	int8
+#unsigned short is 2 bytes
+#javad end
+	reg_data	int16
+	data_type	flags[msm_actuator_data_type, int32]
+	i2c_operation	flags[msm_actuator_i2c_operation, int32]
+	delay		int32
+}
+
+msm_actuator_reg_params_t {
+	reg_write_type	flags[msm_actuator_write_type, int32]
+	hw_mask		int32
+#	reg_addr	int8
+#	hw_shift	int8
+#	data_shift	int8
+#	data_type	int8
+#	addr_type	int8
+#	reg_data	int8
+#	delay		int8
+	reg_addr	int16
+	hw_shift	int16
+	data_shift	int16
+	data_type	int16
+	addr_type	int16
+	reg_data	int16
+	delay		int16
+}
+
+msm_actuator_tuning_params_t {
+	initial_code	int16
+	pwd_step	int16
+	region_size	int16
+	total_steps	int32
+	region_params	ptr[inout, region_params_t]
+}
+
+region_params_t {
+	step_bound	array[int16, 2]
+	code_per_step	int16
+	qvalue		int32
+}
+
+msm_actuator_get_info_t {
+	focal_length_num	int32
+	focal_length_den	int32
+	f_number_num		int32
+	f_number_den		int32
+	f_pix_num		int32
+	f_pix_den		int32
+	total_f_dist_num	int32
+	total_f_dist_den	int32
+	hor_view_angle_num	int32
+	hor_view_angle_den	int32
+	ver_view_angle_num	int32
+	ver_view_angle_den	int32
+}
+
+msm_actuator_set_position_t {
+	number_of_steps	int16
+	hw_params	int32
+	pos		array[int16, 47]
+	delay		array[int16, 47]
+}
+
+park_lens_data_t {
+	damping_step	int32
+	damping_delay	int32
+	hw_params	int32
+	max_step	int32
+}
+
+af_camera_name = ACTUATOR_MAIN_CAM_0, ACTUATOR_MAIN_CAM_1, ACTUATOR_MAIN_CAM_2, ACTUATOR_MAIN_CAM_3, ACTUATOR_MAIN_CAM_4, ACTUATOR_MAIN_CAM_5, ACTUATOR_WEB_CAM_0, ACTUATOR_WEB_CAM_1, ACTUATOR_WEB_CAM_2
+actuator_type = ACTUATOR_VCM, ACTUATOR_PIEZO, ACTUATOR_HVCM, ACTUATOR_BIVCM
+msm_actuator_addr_type = MSM_ACTUATOR_BYTE_ADDR, MSM_ACTUATOR_WORD_ADDR
+msm_actuator_data_type = MSM_ACTUATOR_BYTE_DATA, MSM_ACTUATOR_WORD_DATA
+msm_actuator_write_type = MSM_ACTUATOR_WRITE_HW_DAMP, MSM_ACTUATOR_WRITE_DAC, MSM_ACTUATOR_WRITE, MSM_ACTUATOR_WRITE_DIR_REG, MSM_ACTUATOR_POLL, MSM_ACTUATOR_READ_WRITE
+msm_actuator_i2c_operation = MSM_ACT_WRITE, MSM_ACT_POLL
+
+msm_actuator_cfg_type_t = CFG_GET_ACTUATOR_INFO, CFG_SET_ACTUATOR_INFO, CFG_SET_DEFAULT_FOCUS, CFG_MOVE_FOCUS, CFG_SET_POSITION, CFG_ACTUATOR_POWERDOWN, CFG_ACTUATOR_POWERUP, CFG_ACTUATOR_INIT

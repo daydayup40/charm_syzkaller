@@ -1,0 +1,303 @@
+#Hamid
+#This one is for msm_isp that covers v4l-13,14
+#/isp/msm_isp_util
+include <media/v4l2-subdev.h>
+include <media/msmb_isp.h>
+#include "../drivers/media/platform/msm/camera_v2/isp/msm_isp_util.h"
+include <../drivers/media/platform/msm/camera_v2/msm_sd.h>
+resource fd_v4l2_isp[fd]
+
+syz_open_dev$v4l2_subdev13(dev ptr[in, string["/dev/v4l-subdev13"]], id intptr, flags flags[open_flags]) fd_v4l2_isp
+syz_open_dev$v4l2_subdev14(dev ptr[in, string["/dev/v4l-subdev14"]], id intptr, flags flags[open_flags]) fd_v4l2_isp
+
+##subdev13
+ioctl$msm_isp_ioctl_VFE_REG_CFG_COMPAT(fd fd_v4l2_isp, cmd const[VIDIOC_MSM_VFE_REG_CFG_COMPAT], arg ptr[inout, msm_vfe_cfg_cmd2_32])
+ioctl$msm_isp_ioctl_VFE_REG_LIST_CFG_COMPAT(fd fd_v4l2_isp, cmd const[VIDIOC_MSM_VFE_REG_LIST_CFG_COMPAT], arg ptr[inout, msm_vfe_cfg_cmd_list_32])
+
+ioctl$msm_isp_ioctl_VIDIOC_MSM_VFE_REG_CFG(fd fd_v4l2_isp, cmd const[VIDIOC_MSM_VFE_REG_CFG], arg ptr[inout, msm_vfe_cfg_cmd2])
+ioctl$msm_isp_ioctl_VFE_REG_LIST_CFG(fd fd_v4l2_isp, cmd const[VIDIOC_MSM_VFE_REG_LIST_CFG], arg ptr[inout, msm_vfe_cfg_cmd_list])
+ioctl$msm_isp_ioctl_VIDIOC_MSM_ISP_RELEASE_BUF(fd fd_v4l2_isp, cmd const[VIDIOC_MSM_ISP_RELEASE_BUF], arg ptr[inout, msm_isp_buf_request])
+ioctl$msm_isp_ioctl_VIDIOC_MSM_ISP_DEQUEUE_BUF(fd fd_v4l2_isp, cmd const[VIDIOC_MSM_ISP_DEQUEUE_BUF], arg ptr[inout, msm_isp_qbuf_info])
+ioctl$msm_isp_ioctl_VIDIOC_MSM_ISP_ENQUEUE_BUF(fd fd_v4l2_isp, cmd const[VIDIOC_MSM_ISP_ENQUEUE_BUF], arg ptr[inout, msm_isp_qbuf_info])
+ioctl$msm_isp_ioctl_VIDIOC_MSM_ISP_REQUEST_BUF(fd fd_v4l2_isp, cmd const[VIDIOC_MSM_ISP_REQUEST_BUF], arg ptr[inout, msm_isp_buf_request])
+ioctl$msm_isp_ioctl_VIDIOC_MSM_ISP_REQUEST_STREAM(fd fd_v4l2_isp, cmd const[VIDIOC_MSM_ISP_REQUEST_STREAM], arg ptr[inout, msm_vfe_axi_stream_request_cmd])
+ioctl$msm_isp_ioctl_VIDIOC_MSM_ISP_RELEASE_STREAM(fd fd_v4l2_isp, cmd const[VIDIOC_MSM_ISP_RELEASE_STREAM], arg ptr[inout, msm_vfe_axi_stream_release_cmd])
+ioctl$msm_isp_ioctl_VIDIOC_MSM_ISP_CFG_STREAM(fd fd_v4l2_isp, cmd const[VIDIOC_MSM_ISP_CFG_STREAM], arg ptr[inout, msm_vfe_axi_stream_cfg_cmd])
+ioctl$msm_isp_ioctl_VIDIOC_MSM_ISP_AXI_HALT(fd fd_v4l2_isp, cmd const[VIDIOC_MSM_ISP_AXI_HALT], arg ptr[inout, msm_vfe_axi_halt_cmd])
+ioctl$msm_isp_ioctl_VIDIOC_MSM_ISP_AXI_RESET(fd fd_v4l2_isp, cmd const[VIDIOC_MSM_ISP_AXI_RESET], arg ptr[inout, msm_vfe_axi_reset_cmd])
+ioctl$msm_isp_ioctl_VIDIOC_MSM_ISP_AXI_RESTART(fd fd_v4l2_isp, cmd const[VIDIOC_MSM_ISP_AXI_RESTART], arg ptr[inout, msm_vfe_axi_restart_cmd])
+ioctl$msm_isp_ioctl_VIDIOC_MSM_ISP_INPUT_CFG(fd fd_v4l2_isp, cmd const[VIDIOC_MSM_ISP_INPUT_CFG], arg ptr[inout, msm_vfe_input_cfg])
+ioctl$msm_isp_ioctl_VIDIOC_MSM_ISP_REG_UPDATE_CMD(fd fd_v4l2_isp, cmd const[VIDIOC_MSM_ISP_AXI_RESTART], arg intptr)
+ioctl$msm_isp_ioctl_VIDIOC_MSM_ISP_SET_SRC_STATE(fd fd_v4l2_isp, cmd const[VIDIOC_MSM_ISP_SET_SRC_STATE], arg ptr[inout, msm_vfe_axi_src_state])
+ioctl$msm_isp_ioctl_VIDIOC_MSM_ISP_REQUEST_STATS_STREAM(fd fd_v4l2_isp, cmd const[VIDIOC_MSM_ISP_REQUEST_STATS_STREAM], arg ptr[inout, msm_vfe_stats_stream_request_cmd])
+ioctl$msm_isp_ioctl_VIDIOC_MSM_ISP_RELEASE_STATS_STREAM(fd fd_v4l2_isp, cmd const[VIDIOC_MSM_ISP_RELEASE_STATS_STREAM], arg ptr[inout, msm_vfe_stats_stream_release_cmd])
+ioctl$msm_isp_ioctl_VIDIOC_MSM_ISP_CFG_STATS_STREAM(fd fd_v4l2_isp, cmd const[VIDIOC_MSM_ISP_CFG_STATS_STREAM], arg ptr[inout, msm_vfe_stats_stream_cfg_cmd])
+ioctl$msm_isp_ioctl_VIDIOC_MSM_ISP_UPDATE_STATS_STREAM(fd fd_v4l2_isp, cmd const[VIDIOC_MSM_ISP_UPDATE_STATS_STREAM], arg ptr[inout, msm_vfe_axi_stream_update_cmd])
+ioctl$msm_isp_ioctl_VIDIOC_MSM_ISP_UPDATE_STREAM(fd fd_v4l2_isp, cmd const[VIDIOC_MSM_ISP_UPDATE_STREAM], arg ptr[inout, msm_vfe_axi_stream_update_cmd])
+ioctl$msm_isp_ioctl_VIDIOC_MSM_ISP_SMMU_ATTACH(fd fd_v4l2_isp, cmd const[VIDIOC_MSM_ISP_SMMU_ATTACH], arg ptr[inout, msm_vfe_smmu_attach_cmd])
+ioctl$msm_isp_ioctl_MSM_SD_SHUTDOWN(fd fd_v4l2_isp, cmd const[MSM_SD_SHUTDOWN], arg intptr)
+ioctl$msm_isp_ioctl_DEFAULT(fd fd_v4l2_isp, cmd int32, arg int32[0])
+
+ioctl$msm_isp_ioctl_VIDIOC_MSM_ISP_FETCH_ENG_START(fd fd_v4l2_isp, cmd const[VIDIOC_MSM_ISP_FETCH_ENG_START], arg ptr[inout, msm_vfe_fetch_eng_start])
+##End Subde
+
+msm_vfe_fetch_eng_start {
+	session_id	int32
+	stream_id	int32
+	buf_idx		int32
+	buf_addr	int32
+}
+
+msm_vfe_stats_stream_release_cmd {
+	stream_handle	int32
+}
+
+msm_vfe_axi_halt_cmd {
+	stop_camif		int32
+	overflow_detected	int32
+	blocking_halt		int32
+}
+
+msm_vfe_axi_stream_release_cmd {
+	stream_handle	int32
+}
+
+msm_isp_qbuf_info {
+	handle		int32
+	buf_idx		int32
+	buffer		msm_isp_qbuf_buffer
+	dirty_buf	int32
+}
+
+msm_isp_qbuf_buffer {
+	planes		array[msm_isp_qbuf_plane, 3]
+	num_planes	int32
+}
+
+msm_isp_qbuf_plane {
+	addr	int32
+	offset	int32
+	length	int32
+}
+
+msm_vfe_input_cfg {
+	d		union_vfe
+	input_src	flags[msm_vfe_input_src, int32]
+	input_pix_clk	int32
+}
+
+union_vfe [
+	pix_cfg	msm_vfe_pix_cfg
+	rdi_cfg	msm_vfe_rdi_cfg
+]
+
+msm_vfe_pix_cfg {
+	camif_cfg		msm_vfe_camif_cfg
+	testgen_cfg		msm_vfe_testgen_cfg
+	fetch_engine_cfg	msm_vfe_fetch_engine_cfg
+	input_mux		flags[msm_vfe_inputmux, int32]
+	pixel_pattern		flags[ISP_START_PIXEL_PATTERN, int32]
+	input_format		int32
+	is_split		int32
+}
+
+msm_vfe_rdi_cfg {
+	cid		int8
+	frame_based	int8
+}
+
+msm_vfe_camif_cfg {
+	lines_per_frame	int32
+	pixels_per_line	int32
+	first_pixel	int32
+	last_pixel	int32
+	first_line	int32
+	last_line	int32
+	epoch_line0	int32
+	epoch_line1	int32
+	hbi_cnt		int32
+	camif_input	flags[msm_vfe_camif_input, int32]
+	subsample_cfg	msm_vfe_camif_subsample_cfg
+}
+
+msm_vfe_camif_subsample_cfg {
+	irq_subsample_period	int32
+	irq_subsample_pattern	int32
+	sof_counter_step	int32
+	pixel_skip		int32
+	line_skip		int32
+}
+
+msm_vfe_testgen_cfg {
+	lines_per_frame		int32
+	pixels_per_line		int32
+	v_blank			int32
+	h_blank			int32
+	pixel_bayer_pattern	flags[ISP_START_PIXEL_PATTERN, int32]
+	rotate_period		int32
+	color_bar_pattern	flags[msm_vfe_testgen_color_pattern, int32]
+	burst_num_frame		int32
+}
+
+msm_vfe_fetch_engine_cfg {
+	input_format	int32
+	buf_width	int32
+	buf_height	int32
+	fetch_width	int32
+	fetch_height	int32
+	x_offset	int32
+	y_offset	int32
+	buf_stride	int32
+}
+
+msm_vfe_cfg_cmd2_32 {
+	num_cfg		int16
+	cmd_len		int16
+	cfg_data	int32
+	cfg_cmd		int32
+}
+
+msm_vfe_cfg_cmd_list {
+	cfg_cmd		msm_vfe_cfg_cmd2
+	next		intptr
+	next_size	int32
+}
+
+msm_vfe_cfg_cmd_list_32 {
+	cfg_cmd		msm_vfe_cfg_cmd2_32
+	next		int32
+	next_size	int32
+}
+
+msm_vfe_cfg_cmd2 {
+	num_cfg		int16
+	cmd_len		int16
+	cfg_data	vma
+	cfg_cmd		vma
+}
+
+msm_isp_buf_request {
+	session_id	int32
+	stream_id	int32
+	num_buf		int8
+	handle		int32
+	buf_type	flags[msm_isp_buf_type, int32]
+}
+
+msm_vfe_axi_stream_request_cmd {
+	session_id		int32
+	stream_id		int32
+	vt_enable		int32
+	output_format		int32
+	stream_src		flags[msm_vfe_axi_stream_src, int32]
+
+	plane_cfg		array[msm_vfe_axi_plane_cfg, 3]
+
+	burst_count		int32
+	hfr_mode		int32
+	frame_base		int8
+
+	init_frame_drop		int32
+	frame_skip_pattern	flags[msm_vfe_frame_skip_pattern, int32]
+	buf_divert		int8
+	axi_stream_handle	int32
+	controllable_output	int32
+	burst_len		int32
+	memory_input		flags[msm_stream_memory_input_t, int32]
+}
+
+msm_vfe_axi_stream_cfg_cmd {
+	num_streams	int8
+	stream_handle	array[int32, 32]
+	cmd		flags[msm_vfe_axi_stream_cmd, int32]
+}
+
+msm_vfe_axi_reset_cmd {
+	blocking	int32
+	frame_id	int32
+}
+
+msm_vfe_axi_restart_cmd {
+	enable_camif	int32
+}
+
+msm_vfe_axi_src_state {
+	input_src	flags[msm_vfe_input_src, int32]
+	src_active	int32
+	src_frame_id	int32
+}
+
+msm_vfe_stats_stream_request_cmd {
+	session_id		int32
+	stream_id		int32
+	stats_type		flags[msm_isp_stats_type, int32]
+	composite_flag		int32
+	framedrop_pattern	int32
+	init_frame_drop		int32
+	irq_subsample_pattern	int32
+	buffer_offset		int32
+	stream_handle		int32
+}
+
+msm_vfe_axi_stream_update_cmd {
+	num_streams	int32
+	update_type	flags[msm_vfe_axi_stream_update_type, int32]
+	update_info	array[msm_vfe_axi_stream_cfg_update_info]
+}
+
+msm_vfe_axi_stream_cfg_update_info {
+	stream_handle	int32
+	output_format	int32
+	user_stream_id	int32
+	frame_id	int32
+	skip_pattern	flags[msm_vfe_frame_skip_pattern, int32]
+	plane_cfg	array[msm_vfe_axi_plane_cfg, 3]
+	sw_skip_info	msm_isp_sw_framskip
+}
+
+msm_isp_sw_framskip {
+	stats_type_mask	int32
+	stream_src_mask	int32
+	skip_mode	flags[msm_vfe_frame_skip_pattern, int32]
+	min_frame_id	int32
+	max_frame_id	int32
+}
+
+msm_vfe_smmu_attach_cmd {
+	security_mode		int32
+	iommu_attach_mode	int32
+}
+
+msm_vfe_axi_plane_cfg {
+	output_width		int32
+	output_height		int32
+	output_stride		int32
+	output_scan_lines	int32
+	output_plane_format	int32
+	plane_addr_offset	int32
+	csid_src		int8
+	rdi_cid			int8
+}
+
+msm_vfe_stats_stream_cfg_cmd {
+	num_streams	int8
+	stream_handle	array[int32, 16]
+	enable		int8
+	stats_burst_len	int32
+}
+
+msm_vfe_testgen_color_pattern = COLOR_BAR_8_COLOR, UNICOLOR_WHITE, UNICOLOR_YELLOW, UNICOLOR_CYAN, UNICOLOR_GREEN, UNICOLOR_MAGENTA, UNICOLOR_RED, UNICOLOR_BLUE, UNICOLOR_BLACK, MAX_COLOR, 1000
+
+msm_vfe_camif_input = CAMIF_DISABLED, CAMIF_PAD_REG_INPUT, CAMIF_MIDDI_INPUT, CAMIF_MIPI_INPUT, 1000
+
+ISP_START_PIXEL_PATTERN = ISP_BAYER_RGRGRG, ISP_BAYER_GRGRGR, ISP_BAYER_BGBGBG, ISP_BAYER_GBGBGB, ISP_YUV_YCbYCr, ISP_YUV_YCrYCb, ISP_YUV_CbYCrY, ISP_YUV_CrYCbY, ISP_PIX_PATTERN_MAX, 1000
+msm_vfe_inputmux = CAMIF, TESTGEN, EXTERNAL_READ, 1000
+
+msm_isp_buf_type = ISP_PRIVATE_BUF, ISP_SHARE_BUF, MAX_ISP_BUF_TYPE, 1000
+msm_vfe_axi_stream_src = PIX_ENCODER, PIX_VIEWFINDER, PIX_VIDEO, CAMIF_RAW, IDEAL_RAW, RDI_INTF_0, RDI_INTF_1, RDI_INTF_2, VFE_AXI_SRC_MAX, 1000
+msm_vfe_frame_skip_pattern = NO_SKIP, EVERY_2FRAME, EVERY_3FRAME, EVERY_4FRAME, EVERY_5FRAME, EVERY_6FRAME, EVERY_7FRAME, EVERY_8FRAME, EVERY_16FRAME, EVERY_32FRAME, SKIP_ALL, SKIP_RANGE, MAX_SKIP, 1000
+msm_stream_memory_input_t = MEMORY_INPUT_DISABLED, MEMORY_INPUT_ENABLED, 1000
+msm_vfe_axi_stream_cmd = STOP_STREAM, START_STREAM, STOP_IMMEDIATELY, 1000
+msm_vfe_input_src = VFE_PIX_0, VFE_RAW_0, VFE_RAW_1, VFE_RAW_2, VFE_SRC_MAX, 1000
+msm_isp_stats_type = MSM_ISP_STATS_AEC, MSM_ISP_STATS_AF, MSM_ISP_STATS_AWB, MSM_ISP_STATS_RS, MSM_ISP_STATS_CS, MSM_ISP_STATS_IHIST, MSM_ISP_STATS_SKIN, MSM_ISP_STATS_BG, MSM_ISP_STATS_BF, MSM_ISP_STATS_BE, MSM_ISP_STATS_BHIST, MSM_ISP_STATS_BF_SCALE, MSM_ISP_STATS_HDR_BE, MSM_ISP_STATS_HDR_BHIST, MSM_ISP_STATS_AEC_BG, MSM_ISP_STATS_MAX, 1000
+msm_vfe_axi_stream_update_type = ENABLE_STREAM_BUF_DIVERT, DISABLE_STREAM_BUF_DIVERT, UPDATE_STREAM_FRAMEDROP_PATTERN, UPDATE_STREAM_STATS_FRAMEDROP_PATTERN, UPDATE_STREAM_AXI_CONFIG, UPDATE_STREAM_REQUEST_FRAMES, UPDATE_STREAM_ADD_BUFQ, UPDATE_STREAM_REMOVE_BUFQ, UPDATE_STREAM_SW_FRAME_DROP, 1000

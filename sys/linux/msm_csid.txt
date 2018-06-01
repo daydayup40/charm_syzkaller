@@ -1,0 +1,57 @@
+#Hamid
+#This one is for msm_csid that covers v4l-3,v4l-4,v4l2-5,v4l-6
+#csid/msm_csid.c
+include <media/msm_cam_sensor.h>
+include <media/msm_camsensor_sdk.h>
+include <../drivers/media/platform/msm/camera_v2/msm_sd.h>
+include <../drivers/media/platform/msm/camera_v2/sensor/csid/msm_csid.h>
+resource fd_v4l2_csid[fd]
+
+syz_open_dev$v4l2_subdev3(dev ptr[in, string["/dev/v4l-subdev3"]], id intptr, flags flags[open_flags]) fd_v4l2_csid
+syz_open_dev$v4l2_subdev4(dev ptr[in, string["/dev/v4l-subdev4"]], id intptr, flags flags[open_flags]) fd_v4l2_csid
+syz_open_dev$v4l2_subdev5(dev ptr[in, string["/dev/v4l-subdev5"]], id intptr, flags flags[open_flags]) fd_v4l2_csid
+syz_open_dev$v4l2_subdev6(dev ptr[in, string["/dev/v4l-subdev6"]], id intptr, flags flags[open_flags]) fd_v4l2_csid
+
+#v4l-3,4,5,6
+ioctl$msm_csid_subdev_ioctl_VIDIOC_MSM_SENSOR_GET_SUBDEV_ID(fd fd_v4l2_csid, cmd const[VIDIOC_MSM_SENSOR_GET_SUBDEV_ID], arg ptr[inout, intt_arg])
+ioctl$msm_csid_subdev_ioctl_VIDIOC_MSM_CSID_IO_CFG(fd fd_v4l2_csid, cmd const[VIDIOC_MSM_CSID_IO_CFG], arg ptr[inout, csid_cfg_data])
+ioctl$msm_csid_subdev_ioctl_VIDIOC_MSM_CSID_RELEASE(fd fd_v4l2_csid, cmd const[VIDIOC_MSM_CSID_RELEASE], arg intptr)
+ioctl$msm_csid_subdev_ioctl_MSM_SD_SHUTDOWN(fd fd_v4l2_csid, cmd const[MSM_SD_SHUTDOWN], arg intptr)
+ioctl$msm_csid_subdev_ioctl_MSM_SD_DEFUALT(fd fd_v4l2_csid, cmd int32, arg int32[0])
+#End V4l-3,4,5,6
+
+intt_arg {
+	arg_int	int32
+}
+
+csid_cfg_data {
+	cf_type	flags[cfgtype, int32]
+	cfg	cfg_type
+}
+
+msm_camera_csid_params {
+	lane_cnt	int8
+	lane_assign	int16
+	phy_sel		int8
+	csi_clk		int32
+	lut_params	msm_camera_csid_lut_params
+}
+
+cfg_type [
+	csid_version	int32
+	params		ptr[inout, msm_camera_csid_params]
+]
+
+msm_camera_csid_lut_params {
+	num_cid		int8
+	vc_cfg_a	array[msm_camera_csid_vc_cfg, 16]
+	vc_cfg		ptr[inout, array[msm_camera_csid_vc_cfg, 16]]
+}
+
+msm_camera_csid_vc_cfg {
+	cid		int8
+	dt		int8
+	decode_format	int8
+}
+
+cfgtype = CSID_INIT, CSID_CFG, CSID_RELEASE, 1000

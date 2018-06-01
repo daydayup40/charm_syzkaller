@@ -1,0 +1,62 @@
+#Hamid
+#this one is for msm_ispif that covers v4l-15
+include <../drivers/media/platform/msm/camera_v2/msm_sd.h>
+include <media/msm_cam_sensor.h>
+include <media/msmb_ispif.h>
+resource fd_v4l2_15[fd]
+
+syz_open_dev$v4l2_subdev15(dev ptr[in, string["/dev/v4l-subdev15"]], id intptr, flags flags[open_flags]) fd_v4l2_15
+
+ioctl$msm_ispif_subdev_ioctl_VIDIOC_MSM_ISPIF_CFG(fd fd_v4l2_15, cmd const[VIDIOC_MSM_ISPIF_CFG], arg ptr[inout, ispif_args_CFG])
+ioctl$msm_ispif_subdev_ioctl_MSM_SD_SHUTDOWN(fd fd_v4l2_15, cmd const[MSM_SD_SHUTDOWN], arg intptr)
+ioctl$msm_ispif_subdev_ioctl_DEFAULT(fd fd_v4l2_15, cmd int32, arg int32[0])
+
+ispif_args_CFG {
+	ispif_cfg_type	flags[ispif_cfg_type_t, int32]
+	ispif_cfg	ispif_cfg_union
+}
+
+ispif_cfg_union [
+	reg_dump	int32
+	csid_version	int32
+	vfe_info	msm_ispif_vfe_info
+	params		msm_ispif_param_data
+]
+
+msm_ispif_param_data {
+	num	int32
+#This should work but it does not!!
+#entries array[msm_ispif_params_entry,MAX_PARAM_ENTRIES]
+	entries	array[msm_ispif_params_entry, 10]
+}
+
+msm_ispif_params_entry {
+	vfe_intf		flags[msm_ispif_vfe_intf, int32]
+	intftype		flags[msm_ispif_intftype, int32]
+	num_cids		int32
+	cids			array[flags[msm_ispif_cid, int32], 3]
+	csid			flags[msm_ispif_csid, int32]
+	crop_enable		int32
+	crop_start_pixel	int16
+	crop_end_pixel		int16
+}
+
+msm_ispif_vfe_info {
+	msm_ispif_vfe_info	int32
+#This should work too for now lets put 10
+#info array[msm_isp_info,VFE_MAX]	
+	info			array[msm_isp_info, 10]
+}
+
+msm_isp_info {
+	max_resolution	int32
+	id		int32
+	ver		int32
+}
+
+msm_ispif_vfe_intf = VFE0, VFE1, VFE_MAX, 10000
+msm_ispif_intftype = PIX0, RDI0, PIX1, RDI1, RDI2, INTF_MAX, 10000
+msm_ispif_cid = CID0, CID1, CID2, CID3, CID4, CID5, CID6, CID7, CID8, CID9, CID10, CID11, CID12, CID13, CID14, CID15, CID_MAX, 10000
+msm_ispif_csid = CSID0, CSID1, CSID2, CSID3, CSID_MAX, 1000
+
+ispif_cfg_type_t = ISPIF_CLK_ENABLE, ISPIF_CLK_DISABLE, ISPIF_INIT, ISPIF_CFG, ISPIF_START_FRAME_BOUNDARY, ISPIF_RESTART_FRAME_BOUNDARY, ISPIF_STOP_FRAME_BOUNDARY, ISPIF_STOP_IMMEDIATELY, ISPIF_RELEASE, ISPIF_ENABLE_REG_DUMP, ISPIF_SET_VFE_INFO, 10000

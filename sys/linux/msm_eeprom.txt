@@ -1,0 +1,58 @@
+#Hamid
+#subdev0 in here is just a place holder I have to find the actual dev file
+#msm_eeprom.c
+
+include <media/msm_cam_sensor.h>
+
+resource fd_eeprom[fd]
+
+syz_open_dev$v4l2_subdev7(dev ptr[in, string["/dev/v4l-subdev7"]], id intptr, flags flags[open_flags]) fd_eeprom
+syz_open_dev$v4l2_subdev8(dev ptr[in, string["/dev/v4l-subdev8"]], id intptr, flags flags[open_flags]) fd_eeprom
+
+##v4l-7,8
+ioctl$msm_eeprom_subdev_ioctl_VIDIOC_MSM_SENSOR_GET_SUBDEV_ID(fd fd_eeprom, cmd const[VIDIOC_MSM_SENSOR_GET_SUBDEV_ID], arg ptr[inout, eeprom_subdev_id])
+ioctl$msm_eeprom_subdev_ioctl_VIDIOC_MSM_EEPROM_CFG(fd fd_eeprom, cmd const[VIDIOC_MSM_EEPROM_CFG], arg ptr[inout, data_VIDIOC_MSM_EEPROM_CFG])
+ioctl$msm_eeprom_subdev_ioctl_DEFAULT(fd fd_eeprom, cmd int32, arg int32[0])
+##end v4l-7,8
+
+eeprom_subdev_id {
+	arg_int	int32
+}
+
+data_VIDIOC_MSM_EEPROM_CFG {
+	is_supported	int8
+	cfgtyps_enum	flags[cfgtype_eeprom, int32]
+	cfg		cfg_enum
+}
+
+#MAX_SENSOR_NAME is 32 so I just put 32 here
+#Well I actually think this one is just eeprom :) Let's see
+cfg_enum [
+	eeprom_name	string["eeprom"]
+	get_data	get_data_eeprom
+	read_data	read_data_eeprom
+	write_data	write_data_eeprom
+	get_cmm_data	get_cmm_data_eeprom
+]
+
+get_data_eeprom {
+	num_bytes	int32
+}
+
+read_data_eeprom {
+	num_bytes	int32
+	dbuffer		ptr[in, int32]
+}
+
+write_data_eeprom {
+	num_bytes	int32
+	dbuffer		ptr[in, int32]
+}
+
+get_cmm_data_eeprom {
+	cmm_support	int32
+	cmm_compression	int32
+	cmm_size	int32
+}
+
+cfgtype_eeprom = CFG_EEPROM_GET_INFO, CFG_EEPROM_GET_CAL_DATA, CFG_EEPROM_READ_CAL_DATA, CFG_EEPROM_WRITE_DATA, CFG_EEPROM_GET_MM_INFO, 10000

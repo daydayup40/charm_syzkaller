@@ -1,0 +1,42 @@
+#Hamid
+#subdev0 in here is just a place holder I have to find the actual dev file
+#msm_sensor_init.c
+include <media/msm_cam_sensor.h>
+include <../drivers/media/platform/msm/camera_v2/msm_sd.h>
+resource fd_v4l2_11[fd]
+
+syz_open_dev$v4l2_subdev_11(dev ptr[in, string["/dev/v4l-subdev11"]], id intptr, flags flags[open_flags]) fd_v4l2_11
+
+ioctl$msm_sensor_init_subdev_ioctl_VIDIOC_MSM_SENSOR_INIT_CFG(fd fd_v4l2_11, cmd const[VIDIOC_MSM_SENSOR_INIT_CFG], arg ptr[inout, data_MSM_SENSOR_INIT_CFG])
+ioctl$msm_sensor_init_subdev_ioctl_DEFAULT(fd fd_v4l2_11, cmd int32, arg int32[0])
+
+data_MSM_SENSOR_INIT_CFG {
+	cfgtype	flags[sensor_init_types, int32]
+	cfg	sensor_cfg_union
+}
+
+sensor_cfg_union [
+	ensor_info		msm_sensor_info_t
+	sensor_init_params	msm_sensor_init_params
+	setting			vma
+]
+
+msm_sensor_info_t {
+	sensor_name		array[int8, 32]
+	session_id		int32
+	subdev_id		array[int32, 11]
+	subdev_intf		array[int32, 11]
+	is_mount_angle_valid	int8
+	sensor_mount_angle	int32
+	modes_supported		int32
+	position		flags[camb_position_t, int32]
+}
+
+msm_sensor_init_params {
+	modes_supported		int32
+	position		flags[camb_position_t, int32]
+	sensor_mount_angle	int32
+}
+
+sensor_init_types = CFG_SINIT_PROBE, CFG_SINIT_PROBE_DONE, CFG_SINIT_PROBE_WAIT_DONE, 10000
+camb_position_t = BACK_CAMERA_B, FRONT_CAMERA_B, INVALID_CAMERA_B, 10000

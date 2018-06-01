@@ -1,0 +1,38 @@
+#Hamid
+#This one is for msm.c that covers media0 , video0
+#
+
+include <media/msm_cam_sensor.h>
+include <media/v4l2-subdev.h>
+include <media/msmb_camera.h>
+include <media/msm_camsensor_sdk.h>
+resource fd_media_video[fd]
+
+syz_open_dev$media0(dev ptr[in, string["/dev/media0"]], id intptr, flags flags[open_flags]) fd_media_video
+
+syz_open_dev$video0(dev ptr[in, string["/dev/video0"]], id intptr, flags flags[open_flags]) fd_media_video
+
+#media0
+ioctl$msm_private_ioctl_MSM_CAM_V4L2_IOCTL_NOTIFY(fd fd_media_video, cmd const[MSM_CAM_V4L2_IOCTL_NOTIFY], arg ptr[inout, msm_v4l2_event_data])
+ioctl$msm_private_ioctl_MSM_CAM_V4L2_IOCTL_CMD_ACK(fd fd_media_video, cmd const[MSM_CAM_V4L2_IOCTL_CMD_ACK], arg ptr[inout, msm_v4l2_event_data])
+ioctl$msm_private_ioctl_MSM_CAM_V4L2_IOCTL_NOTIFY_ERROR(fd fd_media_video, cmd const[MSM_CAM_V4L2_IOCTL_NOTIFY_ERROR], arg ptr[inout, msm_v4l2_event_data])
+ioctl$msm_private_ioctl_DEFAULT(fd fd_media_video, cmd int32, arg int32[0])
+
+msm_v4l2_event_data {
+	command		int32
+	status		int32
+	session_id	int32
+	stream_id	int32
+	map_op		int32
+	map_buf_idx	int32
+	notify		int32
+	arg_value	int32
+	ret_value	int32
+	v4l2_event_type	int32
+	v4l2_event_id	int32
+	nop5		int32
+	nop6		int32
+	nop7		int32
+	nop8		int32
+	nop9		int32
+}
